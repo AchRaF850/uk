@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Budget optimal - Visa UK</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+.box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+}
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 16px;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+button {
+    margin-top: 15px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #007bff;
+    color: #fff;
+}
+.result {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 5px;
+    background: #e7f3ff;
+    border-left: 5px solid #007bff;
+    color: #000;
+    font-size: 15px;
+}
+.bar-container {
+    margin-top: 20px;
+    width: 100%;
+    background: #ddd;
+    border-radius: 5px;
+    height: 30px;
+    position: relative;
+    overflow: hidden;
+}
+.bar-budget {
+    height: 100%;
+    background: #28a745;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.bar-depense {
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #dc3545;
+}
+.bar-label {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 0;
+    line-height: 30px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+}
+.info {
+    background:#fffae6;
+    padding:10px;
+    border-left:5px solid #ffc107;
+    margin-top:10px;
+    font-size: 14px;
+}
+@media (max-width: 400px) {
+    input { font-size: 14px; padding: 8px; }
+    label { font-size: 14px; }
+    .result { font-size: 14px; }
+    .bar-label { font-size: 12px; line-height: 25px; }
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>💰 Budget optimal - Visa UK</h2>
+
+<p class="info">
+💡 Info : 1 £ = 175.586 DZD. Vous pouvez convertir vos DZD automatiquement pour le salaire et le retrait.
+</p>
+
+<label>Montant en DZD à convertir en salaire (£) :</label>
+<input type="number" id="dzdSalaire" placeholder="Saisir montant en DZD pour salaire">
+
+<label>Résultat de la conversion en £ :</label>
+<input type="number" id="conversionSalaire" readonly placeholder="Montant en £">
+
+<label>Retrait mensuel en DZD :</label>
+<input type="number" id="dzdRetrait" placeholder="Saisir montant en DZD pour retrait">
+
+<label>Retrait mensuel (£) :</label>
+<input type="number" id="retrait" readonly placeholder="Retrait mensuel en £">
+
+<label>Salaire mensuel (£) :</label>
+<input type="number" id="salaire">
+
+<p>Multiplicateur fixe : 3</p>
+
+<label>Nombre de jours prévu :</label>
+<input type="number" id="jours" value="7">
+
+<label>Dépenses totales prévues (£) :</label>
+<input type="number" id="depenses" placeholder="Saisir toutes vos dépenses">
+
+<button id="resetBtn">🔄 Réinitialiser</button>
+
+<div class="result" id="resultat" role="alert"></div>
+
+<div class="bar-container">
+    <div class="bar-budget" id="barBudget"></div>
+    <div class="bar-depense" id="barDepense"></div>
+    <div class="bar-label" id="barLabel"></div>
+</div>
+
+</div>
+
+<script>
+const salaireInput = document.getElementById("salaire");
+const retraitInput = document.getElementById("retrait");
+const joursInput = document.getElementById("jours");
+const depensesInput = document.getElementById("depenses");
+
+const dzdSalaireInput = document.getElementById("dzdSalaire");
+const conversionSalaireInput = document.getElementById("conversionSalaire");
+const dzdRetraitInput = document.getElementById("dzdRetrait");
+
+const tauxDZD = 175.586;
+
+// Conversion DZD → £ pour le salaire
+dzdSalaireInput.addEventListener("input", () => {
+    let dzd = parseFloat(dzdSalaireInput.value);
+    if(isNaN(dzd) || dzd < 0) {
+        conversionSalaireInput.value = "";
+        salaireInput.value = "";
+        calculer();
+        return;
+    }
+    let gbp = dzd / tauxDZD;
+    conversionSalaireInput.value = gbp.toFixed(2);
+    salaireInput.value = gbp.toFixed(2);
+    calculer();
+});
+
+// Conversion DZD → £ pour le retrait
+dzdRetraitInput.addEventListener("input", () => {
+    let dzd = parseFloat(dzdRetraitInput.value);
+    if(isNaN(dzd) || dzd < 0) {
+        retraitInput.value = "";
+        calculer();
+        return;
+    }
+    let gbp = dzd / tauxDZD;
+    retraitInput.value = gbp.toFixed(2);
+    calculer();
+});
+
+function calculer() {
+    let salaire = parseFloat(salaireInput.value);
+    let retrait = parseFloat(retraitInput.value);
+    let jours = parseFloat(joursInput.value);
+    let depenses = parseFloat(depensesInput.value);
+
+    if ([salaire,retrait,jours,depenses].some(v => isNaN(v) || v < 0)) {
+        document.getElementById("resultat").innerHTML = "Veuillez entrer des valeurs positives pour tous les champs.";
+        document.getElementById("barBudget").style.width = "0%";
+        document.getElementById("barDepense").style.width = "0%";
+        document.getElementById("barLabel").innerText = "";
+        return;
+    }
+
+    const multiplicateur = 3;
+    let epargne = parseFloat((salaire - retrait).toFixed(2));
+    let budgetMax = parseFloat((multiplicateur * epargne).toFixed(2));
+    let depenseParJour = parseFloat((depenses / jours).toFixed(2));
+
+    let message = `<strong>Épargne mensuelle :</strong> ${epargne} £<br>
+                   <strong>Budget maximum autorisé :</strong> ${budgetMax} £<br>
+                   <strong>Dépenses totales prévues :</strong> ${depenses} £<br>
+                   <strong>Nombre de jours prévu :</strong> ${jours}<br>
+                   <strong>Dépense moyenne par jour :</strong> ${depenseParJour} £<br><br>`;
+
+    if(depenses <= budgetMax){
+        message += `<div style="background:#d4edda; padding:8px; border-left:5px solid #28a745; border-radius:3px;">
+                    ✅ Budget cohérent pour visa UK.</div><br>
+                    <em>Texte prêt pour dossier :</em><br>
+                    My monthly salary is £${salaire}, I withdraw £${retrait} monthly and save the rest. My planned trip expenses are £${depenses} which is within my maximum budget of £${budgetMax}.`;
+
+        document.getElementById("barBudget").style.width = "100%";
+        document.getElementById("barDepense").style.width = (depenses / budgetMax * 100) + "%";
+        document.getElementById("barLabel").innerText = "✅ Budget OK";
+        document.getElementById("barDepense").style.backgroundColor = "#28a745";
+    } else {
+        message += `<div style="background:#f8d7da; padding:8px; border-left:5px solid #dc3545; border-radius:3px;">
+                    ⚠️ Dépenses trop élevées !</div><br>
+                    <em>Veuillez réduire vos dépenses pour rester dans le budget maximum de £${budgetMax}</em>`;
+
+        document.getElementById("barBudget").style.width = "100%";
+        document.getElementById("barDepense").style.width = "100%";
+        document.getElementById("barLabel").innerText = "⚠️ Dépenses > budget";
+        document.getElementById("barDepense").style.backgroundColor = "#dc3545";
+    }
+
+    document.getElementById("resultat").innerHTML = message;
+}
+
+[salaireInput, retraitInput, joursInput, depensesInput].forEach(input => {
+    input.addEventListener("input", calculer);
+});
+
+// Bouton Réinitialiser
+document.getElementById("resetBtn").addEventListener("click", () => {
+    [dzdSalaireInput, conversionSalaireInput, dzdRetraitInput, salaireInput, retraitInput, joursInput, depensesInput].forEach(inp => inp.value = "");
+    document.getElementById("resultat").innerHTML = "";
+    document.getElementById("barBudget").style.width = "0%";
+    document.getElementById("barDepense").style.width = "0%";
+    document.getElementById("barLabel").innerText = "";
+});
+</script>
+
+</body>
+</html>
