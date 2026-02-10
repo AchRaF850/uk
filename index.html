@@ -206,12 +206,15 @@ function calculer() {
     let epargne = parseFloat((salaire - retrait).toFixed(2));
     let budgetMax = parseFloat((multiplicateur * epargne).toFixed(2));
     let depenseParJour = parseFloat((depenses / jours).toFixed(2));
+    let difference = parseFloat((budgetMax - depenses).toFixed(2));
+
 
     let message = `<strong>Épargne mensuelle :</strong> ${epargne} £<br>
-                   <strong>Budget maximum autorisé :</strong> ${budgetMax} £<br>
-                   <strong>Dépenses totales prévues :</strong> ${depenses} £<br>
-                   <strong>Nombre de jours prévu :</strong> ${jours}<br>
-                   <strong>Dépense moyenne par jour :</strong> ${depenseParJour} £<br><br>`;
+               <strong>Budget maximum autorisé :</strong> ${budgetMax} £<br>
+               <strong>Dépenses totales prévues :</strong> ${depenses} £<br>
+               <strong>Différence (budget - dépenses) :</strong> ${difference} £<br>
+               <strong>Nombre de jours prévu :</strong> ${jours}<br>
+               <strong>Dépense moyenne par jour :</strong> ${depenseParJour} £<br><br>`;
 
     if(depenses <= budgetMax){
         message += `<div style="background:#d4edda; padding:8px; border-left:5px solid #28a745; border-radius:3px;">
